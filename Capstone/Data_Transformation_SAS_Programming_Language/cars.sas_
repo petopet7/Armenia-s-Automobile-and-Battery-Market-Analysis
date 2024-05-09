@@ -1,0 +1,79 @@
+options validvarname=v7;
+
+%macro data_process(dataset=, name=);
+	PROC IMPORT DATAFILE="/home/u63334186/capstone/DATASETS/&name..xlsx" 
+			OUT=&dataset
+		DBMS=xlsx REPLACE;
+		GETNAMES=YES;
+		DATAROW=2;
+	RUN;
+
+	data &name.;
+		set &dataset.;
+		product_id=codes;
+		product_name="&name.";
+
+		if year=2022 and time_period=13 then
+			do;
+				mekiqash=(import_in_tonn)/46000;
+				mekigin=(import_in_1000_*1000)/46000;
+			end;
+		mijinqash=1.6;
+		mijingin=15280;
+		qanakimpqash=import_in_tonn/mijinqash;
+		qanakimpgin=(import_in_1000_*1000)/mijingin;
+		import_amount=round(qanakimpqash+qanakimpgin/2);
+		qanakexpqash=export_in_tonn/mijinqash;
+		qanakexpgin=(export_in_1000_*1000)/mijingin;
+		export_amount=round(qanakexpqash+qanakexpgin/2);
+
+		if length(strip(time_period))=1 then
+			period="0" || time_period;
+		else
+			period=time_period;
+		date=year || "-" || period;
+
+		if period=13 then
+			delete;
+		keep product_name product_id date import_amount export_amount;
+	run;
+
+	PROC EXPORT DATA=&name
+    OUTFILE="/home/u63334186/capstone/outcome/&name..csv" DBMS=CSV REPLACE;
+	run;
+
+%mend;
+
+%data_process(dataset=car, name=cars);
+%data_process(dataset=tyre, name=tyres);
+%data_process(dataset=battery, name=batteries);
+
+PROC IMPORT DATAFILE="/home/u63334186/capstone/outcome/batteries.csv" 
+		OUT=work.mydata DBMS=CSV REPLACE;
+	GETNAMES=YES;
+
+	/* Sets the variable names in the output dataset to the first row of the CSV, if it contains column headers */
+	DATAROW=2;
+
+	/* Specifies the starting row of the actual data if the first row contains headers */
+RUN;
+
+proc sort data=mydata out=dats;
+	by date;
+run;
+
+data datss;
+	set dats;
+	dates=put(date, yymmdd10.);
+	drop date;
+run;
+
+data fats;
+	set datss;
+	date=dates;
+	drop dates;
+run;
+
+PROC EXPORT DATA=fats OUTFILE="/home/u63334186/capstone/outcome/batteries.csv" 
+		DBMS=CSV REPLACE;
+run;

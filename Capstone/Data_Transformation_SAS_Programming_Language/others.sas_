@@ -1,0 +1,142 @@
+options validvarname=v7;
+
+PROC IMPORT DATAFILE="/home/u63334186/capstone/DATASETS/tyres.xlsx" OUT=tyre 
+		DBMS=xlsx REPLACE;
+	GETNAMES=YES;
+	DATAROW=2;
+RUN;
+
+data tyress;
+	set tyre;
+	product_id=codes;
+
+	if length(strip(time_period))=1 then
+		period="0" || time_period;
+	else
+		period=time_period;
+	date=year || "-" || period;
+	product_name="tyres";
+run;
+
+data thirteen;
+	set tyres;
+
+	if time_period=13;
+	total_exp_ton=export_in_tonn;
+	total_exp_1000=export_in_1000_;
+	total_imp_ton=import_in_tonn;
+	total_imp_1000=import_in_1000_;
+	keep year total_exp_ton total_exp_1000 total_imp_ton total_imp_1000;
+run;
+
+proc sort data=tyress;
+	by descending year;
+run;
+
+proc sort data=thirteen;
+	by descending year;
+run;
+
+data tyres;
+	merge tyress thirteen;
+	by descending year;
+
+	if time_period ne 13 and not missing(export_in_tonn) and not 
+		missing(export_in_1000_) then
+			do;
+			percent_exp_ton=round((export_in_tonn/total_exp_ton)*100);
+			percent_exp_1000=round((export_in_1000_/total_exp_1000)*100);
+			export_percent=(percent_exp_ton+percent_exp_1000)/2  || "%";
+			percent_imp_ton=round((import_in_tonn/total_imp_ton)*100);
+			percent_imp_1000=round((import_in_1000_/total_imp_1000)*100);
+			import_percent=(percent_imp_ton + percent_imp_1000)/2 || "%";
+		end;
+
+	if time_period=13 then
+		delete;
+	keep product_name product_id date export_percent import_percent export_in_tonn 
+		export_in_1000_ import_in_1000_ import_in_tonn;
+run;
+
+options validvarname=v7;
+
+PROC IMPORT DATAFILE="/home/u63334186/capstone/DATASETS/batteries.xlsx" 
+		OUT=battery DBMS=xlsx REPLACE;
+	GETNAMES=YES;
+	DATAROW=2;
+RUN;
+
+data batteriess;
+	set battery;
+	product_id=codes;
+
+	if length(strip(time_period))=1 then
+		period="0" || time_period;
+	else
+		period=time_period;
+	date=year || "-" || period;
+	product_name="batteries";
+run;
+
+data thirteenn;
+	set batteriess;
+
+	if time_period=13;
+	total_exp_ton=export_in_tonn;
+	total_exp_1000=export_in_1000_;
+	total_imp_ton=import_in_tonn;
+	total_imp_1000=import_in_1000_;
+	keep year total_exp_ton total_exp_1000 total_imp_ton total_imp_1000;
+run;
+
+proc sort data=batteriess;
+	by descending year;
+run;
+
+proc sort data=thirteenn;
+	by descending year;
+run;
+
+data batteries;
+	merge batteriess thirteenn;
+	by descending year;
+
+	if time_period ne 13 and not missing(export_in_tonn) and not 
+		missing(export_in_1000_) then
+			do;
+			percent_exp_ton=round((export_in_tonn/total_exp_ton)*100);
+			percent_exp_1000=round((export_in_1000_/total_exp_1000)*100);
+			export_percent=(percent_exp_ton+percent_exp_1000)/2  || "%";
+			percent_imp_ton=round((import_in_tonn/total_imp_ton)*100);
+			percent_imp_1000=round((import_in_1000_/total_imp_1000)*100);
+			import_percent=(percent_imp_ton + percent_imp_1000)/2 || "%";
+		end;
+
+	if time_period=13 then
+		delete;
+	keep product_name product_id date export_percent import_percent export_in_tonn 
+		export_in_1000_ import_in_1000_ import_in_tonn;
+run;
+
+data hmi;
+	retain difg 0;
+	set batteries;
+
+	if substr(date, 1, 4)="2023";
+	diff=import_in_tonn - export_in_tonn;
+
+	if _n_=1 then
+		difg=diff;
+	else
+		difg=difg + diff;
+	difkg=difg *1000;
+	difqanak=difkg/30;
+run;
+
+PROC EXPORT DATA=tyres OUTFILE="/home/u63334186/capstone/outcome/tyres.csv" 
+		DBMS=CSV REPLACE;
+run;
+
+PROC EXPORT DATA=batteries 
+		OUTFILE="/home/u63334186/capstone/outcome/batteries.csv" DBMS=CSV REPLACE;
+run;

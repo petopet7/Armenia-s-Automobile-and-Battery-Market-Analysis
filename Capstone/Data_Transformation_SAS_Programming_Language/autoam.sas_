@@ -1,0 +1,531 @@
+options validvarname=v7;
+
+PROC IMPORT DATAFILE="/home/u63334186/capstone/DATASETS/Carsam.xlsx" OUT=meqena 
+		DBMS=xlsx REPLACE;
+	GETNAMES=YES;
+	DATAROW=2;
+RUN;
+
+data dzdz;
+	length battery $10.;
+	set meqena;
+
+	if strip(currency)="֏" then
+		price=round(price/405);
+
+	if strip(mileage_unit)="մղոն" then
+		do;
+			mileage=round(1.609344*mileage);
+			mileage_unit="km";
+		end;
+	mileage_in_km=mileage;
+
+	if not missing(tax) then
+		customs_cleared="Y";
+	else
+		customs_cleared="N";
+	price_in_usd=price;
+
+	if name="Այլ/Օther" then
+		name="Ferrari";
+
+	if name="Rover Range Rover Velar" or name="S 450" or name="530" or 
+		name="G 500" or name="Land Cruiser 200" or name="Cayenne" or name="528" or 
+		name="S 550" or name="328" or name="Macan" or name="124" or name="180" or 
+		name="350" then
+			battery="100Ah";
+
+	if name="E 200" and year=2016 then
+		battery="100Ah";
+
+	if name="C 300" and year>=2011 then
+		battery="80Ah";
+
+	if name="CLS 500" and 2004<=year<2011 then
+		battery="100Ah";
+
+	if name="C 200" and 1993<=year<2000 then
+		battery="100Ah";
+
+	if name="X4" then
+		battery="100Ah";
+
+	if name="Sentra" or name="Corolla" or name="Focus" or name="Elantra" or 
+		name="Forte" or name="Accent" or name="Altima" or name="3" or name="Teana" or 
+		name="Fiesta" or name="SX 4" or name="Impreza" or name="Versa" or 
+		name="Forte Coupe" or name="Civic" or name="Murano" then
+			battery="62Ah";
+
+	if name="Camry" or name="Optima" or name="Escape" or name="Passat" or 
+		name="Fusion" or name="Accord" or name="Sorento" or name="Sonata" or name="6" 
+		or name="K5" or name="Vectra B" or name="200" or name="CR-V" or name="Fuga" 
+		or name="Soul" or name="S5" or name="RX 300" or name="Terrain" or 
+		name="Titan" then
+			battery="75Ah";
+
+	if name="CX5" or name="Sportage" or name="IS 200" or name="Land Cruiser Prado" 
+		or name="Captiva" or name="X1" or name="Q50" or name="Explorer" or 
+		name="FX37" or name="V 250" or name="B 180" or name="Patriot" or 
+		name="Alphard" or name="Tundra" or name="4-Runner" or name="Pilot" or 
+		name="RX 350 F Sport" or name="228" or name="Ascent" then
+			battery="75Ah";
+
+	if name="GX 470" or name="GLK 350" or name="F150" or name="Boxster" or 
+		name="LS 460" or name="Challenger" or name="A4" or name="X-Trail" or 
+		name="Sequoia" or name="AMG GT" or name="Rover Range Rover" or 
+		name="Rover Range Rover" or name="Rover Range Rover Evoque" or 
+		name="Rover Range Rover Sport" or name="Rover Defender" or name="X3" or 
+		name="1500" or name="Rover Discovery" or name="XF" then
+			battery="80Ah";
+
+	if name="Veloster" or name="NX 200t" or name="Grandeur" or name="Compass" or 
+		name="Trax" or name="NX 300t" or name="Journey" or name="Palisade" then
+			battery="62Ah";
+
+	if name="Model Y" or name="Logan" or name="Colt" or name="Getz" or 
+		name="Outback" or name="Niro" or name="XC90" or name="BlueBird" or name="ELR" 
+		or name="Durango" or name="ForTwo" then
+			battery="60Ah";
+
+	if name="X6" or name="E 350" or name="Pathfinder" or name="E 200" or 
+		name="S 580" or name="G 63 AMG" or name="Flying Spur" or name="E 320" or 
+		name="Charger" or name="CLS 55 AMG" or name="535" or name="Quoris" or 
+		name="Levante" or name="Royce Dawn" then
+			battery="100Ah";
+
+	if name="GS 350" or name="CX9" or name="A6" or name="Santa Fe" or 
+		name="LX 570" or name="CLA 250" or name="RX 330" or name="RX 350" or 
+		name="MDX" or name="Transit" or name="Pajero" or name="ATS" or 
+		name="Panamera" or name="Cherokee" or name="Touareg" or name="ES 350" or 
+		name="Acadia" or name="XE" or name="Bronco" or name="Ranger" or 
+		name="Stinger" or name="Countryman" or name="CT4" or name="Voyager" then
+			battery="80Ah";
+
+	if name="Tucson" or name="GX 460" or name="Malibu" or name="Rav 4" or 
+		name="Avalanche" or name="Zafira" or name="XJ" or name="QX50" or name="QX55" 
+		or name="Camaro" or name="Tiguan" or name="M4" or name="Ghibli" or name="M3" 
+		or name="RS6" or name="XC40" or name="QX60" or name="A3" or name="Aventador" 
+		or name="Odyssey" or name="Trailblazer" or name="Impala" or name="Corvette" 
+		or name="Vectra" then
+			battery="70Ah";
+
+	if name="(Lada) 2107" or name="Kizashi" or name="Astra" or name="Rogue" or 
+		name="SuberB" or name="XV Crosstrek" or name="X7" or name="Rio" or name="M8" 
+		or name="NX 200" or name="Sienna" or name="Ferrari" or name="Legacy" or 
+		name="Doblo" or name="GT86" or name="Megane" or name="Pajero Pinin (IO)" or 
+		name="Seltos" then
+			battery="60Ah";
+
+	if name="Volt" or name="Equinox" or name="i5" or name="Model 3" or 
+		name="Model S" then
+			battery="45Ah";
+
+	if name="FX35" or name="TLX" or name="A 220" or name="Yaris" then
+		battery="65Ah";
+
+	if name="Land Cruiser 300" or name="Outlander" or name="QX80" or 
+		name="NX Turbo F Sport" or name="A8" or name="F-Type" or name="Colorado" or 
+		name="M2" then
+			battery="90Ah";
+
+	if name="Royce Ghost" then
+		battery="135Ah";
+
+	if name="X5" or name="320" or name="ML 350" or name="G80" or name="G90" or 
+		name="F-Pace" then
+			battery="100Ah";
+
+	if name="S 600" or name="645" or name="SQ5" then
+		battery="105Ah";
+
+	if car_brand="VAZ" then
+		battery="60Ah";
+
+	if car_brand="Zeekr" or car_brand="Tesla" then
+		battery="45Ah";
+
+	if car_brand="GAZ" then
+		battery="70Ah";
+
+	if name="Caddy" or name="QX30" or name="Kona" or name="Jetta" or name="Q5" or 
+		name="Passport" or name="RDX" or name="911" or name="A1" or name="B 200" then
+			battery="70Ah";
+
+	if car_brand="UAZ" then
+		battery="60Ah";
+
+	if name="Murano" and year=2021 then
+		battery="62Ah";
+
+	if name="S60" or name="Grand Caravan" or name="Cruze" or name="Epica" or 
+		name="Royce Phantom" or name="Wrangler" or name="Grand Cherokee" or 
+		name="Azure" or substr(name, 1, 2)="GL" or name="Escalade" or name="Patrol" 
+		or name="Cooper" or name="RS4" or name="Royce Wraith" then
+			battery="95Ah";
+
+	if name="IS Turbo" or name="Ecosport" or name="Atlas" or name="Sonic" then
+		battery="62Ah";
+
+	if name="Combo" or name="EX35" or name="ES 250" or name="Juke" or name="XT5" 
+		or name="Silverado" or name="Elysion" or name="Tribeca" then
+			battery="66Ah";
+
+	if name="Cooper S" or name="UX 200" then
+		battery="50Ah";
+
+	if name="Rover Discovery Sport" or name="RAM" or name="300" or name="300 C" or 
+		name="Blazer" or name="Cayman" or name="Gladiator" or name="Tahoe" or 
+		name="F250" or name="G70" then
+			battery="80Ah";
+
+	if car_brand="Aston" then
+		battery="95Ah";
+
+	if name in ("i3", "i4", "i7", "i8", "iD.6", "EV6", "EQA", "Bz3", "Bz4X", 
+		"Bolt EV", "Arrizo e", "EQB", "EQC", "EQE", "EQS", "EQS SUV", "EQV", "E-HS9", 
+		"E-Star", "E-Pace", "ID.3", "ID.4", "Han EV", "ID.6", "iD.4", "i10", 
+		"Q2L e-tron", "Q8 e-tron", "Q2L e-tron", "Q5 e-tron", "Q4 e-tron", "iX", 
+		"RZ 450e", "iX1", "iX3", "ix35", "eQ3", "eQ7", "e:NP1", "e:NS1", "e-tron GT", 
+		"e-tron", "e-Bora", "11", "Yuan Plus", "Mach-e", "Song Plus", "M-NV", 
+		"I-Pace", "Leaf", "NX 300h", "MX-30 EV", "XM", "Taycan", "Prius", "ID.5", 
+		"Ioniq", "Free", "RX 450h F Sport", "RX 400h", "RX 500h", "Monjaro", "ZS", 
+		"RC F") then
+			do;
+			battery="60Ah";
+			AGM="Y";
+		end;
+
+	if name="Tiida" or name="ILX" or name="Kicks" or name="Mustang" or name="C-HR" 
+		or name="RX 450h" or name="CX 30" or name="Edge" then
+			battery="55Ah";
+
+	if missing(battery) and car_brand="Mercedes-Benz" and find(upcase(name), 'C') 
+		> 0 then
+			battery="100Ah";
+
+	if missing(battery) and car_brand="Mercedes-Benz" and find(upcase(name), 'E') 
+		> 0 then
+			battery="100Ah";
+
+	if missing(battery) and car_brand="Mercedes-Benz" and find(upcase(name), 'G') 
+		> 0 then
+			battery="100Ah";
+
+	if missing(battery) and car_brand="Mercedes-Benz" and find(upcase(name), 'S') 
+		> 0 then
+			battery="105Ah";
+
+	if missing(battery) and car_brand="Mercedes-Benz" and find(upcase(name), 'V') 
+		> 0 then
+			battery="100Ah";
+
+	if missing(battery) and car_brand="Mercedes-Benz" and find(upcase(name), 'A') 
+		> 0 then
+			battery="60Ah";
+
+	if car_brand="BMW" and substr(name, 1, 1)="3" then
+		battery="70Ah";
+
+	if car_brand="Lexus" and substr(name, 1, 2)="IS" then
+		battery="80Ah";
+
+	if car_brand="Lexus" and substr(name, 1, 2)="GS" then
+		battery="80Ah";
+
+	if car_brand="Lexus" and substr(name, 1, 6)="GX 460" then
+		battery="80Ah";
+
+	if car_brand="Lexus" and substr(name, 1, 2)="ES" then
+		battery="62Ah";
+
+	if missing(battery) and car_brand="Lexus" and substr(name, 1, 2)="LS" then
+		battery="95Ah";
+
+	if car_brand="BMW" and substr(name, 1, 1)="5" then
+		battery="100Ah";
+
+	if car_brand="BMW" and substr(name, 1, 1)="7" then
+		battery="100Ah";
+
+	if car_brand="BMW" and substr(name, 1, 1)="4" then
+		battery="100Ah";
+
+	if car_brand="BMW" and substr(name, 1, 1)="8" then
+		battery="105Ah";
+
+	if car_brand="BMW" and substr(name, 1, 1)="6" then
+		battery="100Ah";
+
+	if car_brand="BMW" and substr(name, 1, 1)="1" then
+		battery="70Ah";
+
+	if car_brand="BMW" and substr(name, 1, 1)="2" then
+		battery="75Ah";
+
+	if name="Airtrek" and year=2023 then
+		battery="45Ah";
+
+	if name="B4" then
+		battery="105Ah";
+
+	if name="Airtrek" and year=2004 then
+		battery="75Ah";
+
+	if name="Forester" or name="Highlander" or name="Maxima" or name="Q7" or 
+		name="Frontier" or name="CX3" or name="Voxy" or name="Xterra" then
+			battery="66Ah";
+
+	if name="HR-V" or name="Renegade" or name="Fit" or name="WRX" then
+		battery="50Ah";
+
+	if name="Mirage" or name="Eclipse Cross" or name="Spark" then
+		battery="55Ah";
+
+	if name="Q3" or name="Urus" or name="Golf" then
+		battery="72Ah";
+
+	if name="Q60" or name="Royce Cullinan" or name="Tacoma" or name="ES 300" or 
+		name="Encore" or name="NX Turbo" then
+			battery="62Ah";
+
+	if name="Q8" or name="Traverse" or name="Romeo Stelvio" or name="Bentayga" or 
+		name="Continental GT" or name="Land Cruiser 100" or name="Martin DB" or 
+		name="Pacifica" then
+			battery="95Ah";
+
+	if name="R8" or name="M5" or name="A5" then
+		battery="110Ah";
+
+	if missing(battery) and name="Airtrek" then
+		battery="75Ah";
+
+	if name="Romeo Giulia" or name="LC 500" then
+		battery="85Ah";
+
+	if customs_cleared="N" and not missing(price_in_usd) then
+		price_in_usd=1.25*price_in_usd;
+
+	if mileage_in_km<1000 and year<2020 then
+		mileage_in_km=1000*mileage_in_km;
+
+	if car_brand="BMW" or car_brand="Mercedes-Benz" and year>2014 then
+		AGM="Y";
+
+	if car_brand="Fiat" and name="124" then
+		battery="60Ah";
+
+	if car_brand in ("Audi", "Rolls", "Bentley", "Maybach", "BMW", 
+		"Mercedes-Benz", "Jaguar", "Land", "Volvo", "Infiniti", "Lamborghini", 
+		"Maserati", "Volkswagen", "Aston", "Alfa", "Porsche") and year>2014 then
+			AGM="Y";
+
+	if car_brand="Maybach" then
+		battery="105Ah";
+
+	if car_brand="Lexus" and year>2016 then
+		AGM="Y";
+
+	if battery="45Ah" then
+		battery_price=25000;
+
+	if battery="50Ah" then
+		battery_price=20000;
+
+	if battery="60Ah" and AGM="Y" then
+		battery_price=60000;
+	else if battery="60Ah" and missing(AGM) then
+		battery_price=26000;
+
+	if battery="65Ah" then
+		battery_price=28000;
+
+	if battery="66Ah" then
+		battery_price=30000;
+
+	if battery="70Ah" and AGM="Y" then
+		battery_price=70000;
+	else if battery="70Ah" and missing(AGM) then
+		battery_price=32000;
+
+	if battery="75Ah" then
+		price=34000;
+
+	if battery="80Ah" and AGM="Y" then
+		battery_price=80000;
+	else if battery="80Ah" and missing(AGM) then
+		battery_price=40000;
+
+	if battery="92Ah" then
+		battery_price=45000;
+
+	if battery="95Ah" and AGM="Y" then
+		battery_price=95000;
+
+	if battery="100Ah" then
+		battery_price=47000;
+
+	if battery="105Ah" and AGM="Y" then
+		battery_price=110000;
+
+	if battery="110Ah" then
+		battery_price=60000;
+
+	if battery="135Ah" then
+		battery_price=65000;
+
+	if battery="105Ah" and missing(battery_price) then
+		do;
+			battery="100Ah";
+			battery_price=50000;
+		end;
+
+	if battery="135Ah" and not missing(AGM) then
+		do;
+			battery="105Ah";
+			battery_price=110000;
+		end;
+
+	if battery="45Ah" then
+		do;
+			battery="60Ah";
+			AGM="Y";
+			battery_price=60000;
+		end;
+
+	if battery="50Ah" and year> 2015then
+		do;
+			battery="60Ah";
+			AGM="Y";
+			battery_price=60000;
+		end;
+
+	if battery="55Ah" then
+		do;
+			battery="60Ah";
+			battery_price=26000;
+		end;
+
+	if battery="62Ah" and AGM="Y" then
+		do;
+			battery="60Ah";
+			battery_price=60000;
+		end;
+
+	if battery="62Ah" and missing(AGM) then
+		do;
+			battery="60Ah";
+			battery_price=26000;
+		end;
+
+	if battery="65Ah" and AGM="Y" then
+		do;
+			battery="60Ah";
+			battery_price=60000;
+		end;
+
+	if battery="66Ah" and AGM="Y" then
+		do;
+			battery="70Ah";
+			battery_price=70000;
+		end;
+
+	if battery="72Ah" and AGM="Y" then
+		do;
+			battery="70Ah";
+			battery_price=70000;
+		end;
+
+	if battery="72Ah" and missing(AGM) then
+		do;
+			battery="75Ah";
+			battery_price=32000;
+		end;
+
+	if battery="75Ah" and not missing(AGM) then
+		do;
+			battery_price=70000;
+			battery="70Ah";
+		end;
+
+	if battery="75Ah" and missing(battery_price) and missing(AGM) then
+		battery_price=34000;
+
+	if battery="85Ah" then
+		do;
+			battery="80Ah";
+			AGM="Y";
+			battery_price=80000;
+		end;
+
+	if battery="90Ah" and AGM="Y" then
+		do;
+			battery="80Ah";
+			battery_price=80000;
+		end;
+
+	if battery="90Ah" and missing(AGM) then
+		do;
+			battery="92Ah";
+			battery_price=45000;
+		end;
+
+	if battery="95Ah" and missing(AGM) then
+		do;
+			battery="100Ah";
+			battery_price=47000;
+		end;
+	drop mileage mileage_unit tax price currency customs_cleared;
+run;
+
+proc sort data=dzdz out=dzdx nodupkey;
+	by name;
+run;
+
+proc sort data=dzdz;
+	by name;
+run;
+
+data snup;
+	retain qanak 0;
+	set dzdz;
+	by name;
+
+	if first.name then
+		qanak=1;
+	else
+		qanak=qanak+1;
+
+	if missing(battery);
+
+	if qanak>1;
+run;
+
+proc sort data=dzdz;
+	by battery;
+run;
+
+data tokos;
+	retain batqan 0;
+	set dzdz;
+	by battery;
+
+	if first.battery then
+		batqan=1;
+	else
+		batqan=batqan+1;
+
+	if not missing(battery);
+
+	if last.battery then
+		output;
+	keep battery batqan;
+run;
+
+data batts;
+	set tokos;
+	percent=((batqan/10000)*100) || "%";
+run;
+
+proc export data=dzdz outfile='/home/u63334186/capstone/outcome/carsbat.csv' 
+		dbms=csv replace;
+run;
